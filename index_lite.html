@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ChatCreate Lite</title>
+    <link rel="icon" type="image/png" href="https://yourimageshare.com/ib/53MgLPleiK.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #fff;
+            color: #333;
+            font-size: 14px;
+        }
+
+        /* Header */
+        .header {
+            padding: 10px;
+            background: #ff69b4;
+            color: white;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            padding: 20px;
+        }
+
+        .login-form {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .form-hint {
+            font-size: 11px;
+            color: #666;
+            margin-top: 3px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .error-message {
+            color: red;
+            font-size: 12px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Chat Interface */
+        .chat-interface {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 10px;
+            background: #ff69b4;
+            color: white;
+        }
+
+        .channel-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Messages */
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+            background: #f9f9f9;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .message-author {
+            font-weight: bold;
+            font-size: 12px;
+            color: #ff69b4;
+        }
+
+        .message-text {
+            font-size: 14px;
+            margin-top: 3px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .message.own {
+            background: #e3f2fd;
+        }
+
+        .system-message {
+            background: #fff3cd;
+            color: #856404;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        /* Input */
+        .message-input-container {
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 5px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .send-btn {
+            padding: 8px 15px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        /* Channel List */
+        .channel-toggle {
+            padding: 8px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            width: 100%;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .channel-list {
+            display: none;
+            background: #f5f5f5;
+            padding: 10px;
+        }
+
+        .channel-list.show {
+            display: block;
+        }
+
+        .channel-item {
+            padding: 10px;
+            background: white;
+            margin-bottom: 5px;
+            border-radius: 4px;
+        }
+
+        .channel-item.active {
+            background: #ff69b4;
+            color: white;
+        }
+
+        .join-channel-section {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .new-channel-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 5px;
+        }
+
+        .join-btn {
+            width: 100%;
+            padding: 8px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">ChatCreate Lite</div>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <h2>Join the Chat</h2>
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="schoolEmail">Email</label>
+                <input type="email" id="schoolEmail" class="form-input" required>
+                <p class="form-hint">Your school email</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="nickname">Nickname</label>
+                <input type="text" id="nickname" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="channel">Channel</label>
+                <input type="text" id="channel" class="form-input" value="#general" required>
+            </div>
+
+            <button type="submit" class="submit-btn">Join Chat</button>
+            <div class="error-message" id="errorMessage"></div>
+        </form>
+    </div>
+
+    <!-- Chat Interface -->
+    <div class="chat-interface" id="chatInterface">
+        <div class="chat-header">
+            <span class="channel-name" id="channelName">#general</span>
+        </div>
+
+        <button class="channel-toggle" onclick="toggleChannels()">Channels ▼</button>
+        <div class="channel-list" id="channelList">
+            <div class="loading">Loading channels...</div>
+            <div class="join-channel-section">
+                <input type="text" class="new-channel-input" id="newChannelInput" placeholder="#new-channel">
+                <button class="join-btn" onclick="joinNewChannel()">Join</button>
+            </div>
+        </div>
+
+        <div class="messages-container" id="messagesContainer">
+            <div class="loading">Loading messages...</div>
+        </div>
+
+        <div class="message-input-container">
+            <input type="text" class="message-input" id="messageInput" placeholder="Type a message...">
+            <button class="send-btn" id="sendButton" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCe6wcWm7RFHh6vhDjbcyZ9sdI00gIBdZo",
+            authDomain: "chatcreate-5dfd6.firebaseapp.com",
+            databaseURL: "https://chatcreate-5dfd6-default-rtdb.firebaseio.com",
+            projectId: "chatcreate-5dfd6",
+            storageBucket: "chatcreate-5dfd6.firebasestorage.app",
+            messagingSenderId: "992462114118",
+            appId: "1:992462114118:web:dbb2711332b900baf36947"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // State
+        let currentUser = null;
+        let currentChannel = '#general';
+        let messages = {};
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('schoolEmail').value.trim();
+            const nickname = document.getElementById('nickname').value.trim();
+            const channel = document.getElementById('channel').value.trim();
+            
+            if (!email || !nickname) {
+                document.getElementById('errorMessage').textContent = 'Please fill all fields';
+                document.getElementById('errorMessage').style.display = 'block';
+                return;
+            }
+            
+            currentUser = { email, nickname };
+            currentChannel = channel.startsWith('#') ? channel : '#' + channel;
+            
+            localStorage.setItem('chatEmail', email);
+            localStorage.setItem('chatNickname', nickname);
+            
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('chatInterface').style.display = 'flex';
+            document.getElementById('channelName').textContent = currentChannel;
+            
+            // Join message
+            database.ref('channels/' + currentChannel.substring(1) + '/messages').push({
+                author: 'System',
+                nickname: 'System',
+                text: nickname + ' joined the channel',
+                timestamp: Date.now()
+            });
+            
+            loadMessages();
+            loadChannels();
+        });
+
+        // Load saved data
+        window.onload = () => {
+            const savedEmail = localStorage.getItem('chatEmail');
+            const savedNickname = localStorage.getItem('chatNickname');
+            if (savedEmail) document.getElementById('schoolEmail').value = savedEmail;
+            if (savedNickname) document.getElementById('nickname').value = savedNickname;
+        };
+
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            
+            if (!text) return;
+            
+            database.ref('channels/' + currentChannel.substring(1) + '/messages').push({
+                author: currentUser.email,
+                nickname: currentUser.nickname,
+                text: text,
+                timestamp: Date.now()
+            });
+            
+            input.value = '';
+        }
+
+        // Enter to send
+        document.getElementById('messageInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Load messages
+        function loadMessages() {
+            const channelRef = database.ref('channels/' + currentChannel.substring(1) + '/messages');
+            
+            channelRef.on('value', (snapshot) => {
+                const container = document.getElementById('messagesContainer');
+                container.innerHTML = '';
+                
+                if (!snapshot.exists()) {
+                    container.innerHTML = '<div class="empty-state">No messages yet</div>';
+                    return;
+                }
+                
+                snapshot.forEach((child) => {
+                    const msg = child.val();
+                    const div = document.createElement('div');
+                    
+                    if (msg.author === 'System') {
+                        div.className = 'message system-message';
+                        div.innerHTML = `<div class="message-text">${msg.text}</div>`;
+                    } else {
+                        div.className = 'message' + (msg.author === currentUser.email ? ' own' : '');
+                        const time = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                        div.innerHTML = `
+                            <div class="message-author">${msg.nickname}</div>
+                            <div class="message-text">${msg.text}</div>
+                            <div class="message-time">${time}</div>
+                        `;
+                    }
+                    
+                    container.appendChild(div);
+                });
+                
+                container.scrollTop = container.scrollHeight;
+            });
+        }
+
+        // Load channels
+        function loadChannels() {
+            database.ref('channels').on('value', (snapshot) => {
+                const list = document.getElementById('channelList');
+                const joinSection = list.querySelector('.join-channel-section');
+                list.innerHTML = '';
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const channelName = '#' + child.key;
+                        const div = document.createElement('div');
+                        div.className = 'channel-item' + (channelName === currentChannel ? ' active' : '');
+                        div.textContent = channelName;
+                        div.onclick = () => switchChannel(channelName);
+                        list.appendChild(div);
+                    });
+                }
+                
+                list.appendChild(joinSection);
+            });
+        }
+
+        // Switch channel
+        function switchChannel(channelName) {
+            if (channelName === currentChannel) return;
+            
+            // Leave old channel
+            database.ref('channels/' + currentChannel.substring(1) + '/messages').push({
+                author: 'System',
+                nickname: 'System',
+                text: currentUser.nickname + ' left the channel',
+                timestamp: Date.now()
+            });
+            
+            // Join new channel
+            currentChannel = channelName;
+            document.getElementById('channelName').textContent = channelName;
+            
+            database.ref('channels/' + currentChannel.substring(1) + '/messages').push({
+                author: 'System',
+                nickname: 'System',
+                text: currentUser.nickname + ' joined the channel',
+                timestamp: Date.now()
+            });
+            
+            // Reload messages
+            database.ref('channels/' + currentChannel.substring(1) + '/messages').off();
+            loadMessages();
+            
+            toggleChannels();
+        }
+
+        // Join new channel
+        function joinNewChannel() {
+            let input = document.getElementById('newChannelInput').value.trim();
+            if (!input) return;
+            
+            if (!input.startsWith('#')) input = '#' + input;
+            switchChannel(input);
+            document.getElementById('newChannelInput').value = '';
+        }
+
+        // Toggle channel list
+        function toggleChannels() {
+            const list = document.getElementById('channelList');
+            list.classList.toggle('show');
+        }
+    </script>
+</body>
+</html>
